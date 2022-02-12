@@ -3,10 +3,10 @@ package entities;
 public class ItensVendidos {
 	
 	private String name;
-	private double preco;
+	private Double preco;
 	private Integer quantidade;
 	
-	public ItensVendidos(String name, double preco, Integer quantidade) {
+	public ItensVendidos(String name, Double preco, Integer quantidade) {
 
 		this.name = name;
 		this.preco = preco;
@@ -25,7 +25,7 @@ public class ItensVendidos {
 		return preco;
 	}
 
-	public void setPreco(double preco) {
+	public void setPreco(Double preco) {
 		this.preco = preco;
 	}
 
@@ -37,7 +37,7 @@ public class ItensVendidos {
 		this.quantidade = quantidade;
 	}
 	
-	public double valorTotal(double preco, Integer quantidade) {
+	public double valorTotal() {
 		return this.preco * this.quantidade;
 	}
 	

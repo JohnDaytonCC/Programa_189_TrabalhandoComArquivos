@@ -1,7 +1,14 @@
 package application;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 import entities.ItensVendidos;
@@ -9,53 +16,75 @@ import entities.ItensVendidos;
 public class Program {
 
 	public static void main(String[] args) {
-		
+
+		Locale.setDefault(Locale.US);
 		Scanner sc = new Scanner(System.in);
-		// Leitura de arquivos
-		File file = new File("E:\\JOHN DAYTON\\CURSOS DE EXTENS�O\\Java Completo\\summary.csv");		// Processo para armasenar o local do arquivo
 		
-		String nome;
-		double preco;
-		int quantidade;
-		int count = 0;
+		// Inicialização da lista da classe itens vendidos
+		List<ItensVendidos> list = new ArrayList<>();
 		
-		//ItensVendidos[] itensVendidos = ItensVendidos[n];
-		// Inicializa��o do Scanner
-		Scanner input = null;
 		
-		// Ao tentar instanciar o Scanner a partir do file, poder� gerar uma excess�o do tipo IOException que dever� ser tratada.
-		try {
-			input = new Scanner(file);
+		// Entrada via teclado do endereço do arquivo
+		// /media/johndayton/6A74C73674C70433/JOHN DAYTON/CURSOS DE EXTENSÃO/Java Completo/summary.csv
+		// E:\\JOHN DAYTON\\CURSOS DE EXTENSÃO\\Java Completo\\summary.csv
+		System.out.println("Entre com o endereço do arquivo:");
+		String nomeCaminho = sc.nextLine();
+		
+		// Conversão da string para objeto do tipo File
+		File fonteDoArquivo = new File(nomeCaminho);
+		String caminhoDaPasta = fonteDoArquivo.getParent();
+		
+		// Criação de uma subpasta
+		boolean success = new File(caminhoDaPasta + "/out").mkdir();
+		
+		// Descrição do nome do caminho do arquivo que será criado.
+		String caminhoSubArquivo = caminhoDaPasta + "/out/summary.csv";
+
+		// Ao tentar instanciar o Scanner a partir do file, poderá gerar uma excessão do tipo IOException que deverá ser tratada.
+		// 
+		try (BufferedReader br = new BufferedReader(new FileReader(nomeCaminho))){
 			
-			// Comando para testar a quantidade de linhas do arquivo
-			while(input.hasNextLine()) {
-				++count;
+			
+			String arquivoCsv = br.readLine();
+
+			// Comando para ler as linhas do arquivo e salvar os dados.
+			while (arquivoCsv != null) {
+				
+				// Comando para separação dos dodas da linha separados por vígulas
+				// Salva os dados em um vetor chamado de <campos>.
+				String[] campos = arquivoCsv.split(",");
+				
+				// Alocação dos dados em variáveis específicas para carregar na classe <ItensVendidos>.
+				String nome = campos[0];
+				Double preco = Double.parseDouble(campos[1]);
+				Integer quantidade = Integer.parseInt(campos[2]);
+				list.add(new ItensVendidos(nome, preco, quantidade));
+				
+				// Comando para verificar se existe outra linha no arquivo.
+				arquivoCsv = br.readLine();
 			}
-			
-			ItensVendidos[] itensVendidos = new ItensVendidos[count];
-			
-			for(int i=0; i<=count; i++) {
-				String[] textoSeparado = input.nextLine().split(",|,\\s");
-				nome = textoSeparado[0];
-				preco = Double.parseDouble(textoSeparado[1]);
-				quantidade = Integer.parseInt(textoSeparado[2]);
-				itensVendidos[i] = new ItensVendidos(nome, preco, quantidade);			
+
+			// Comandos para editar o arquivo criado, incluindo os dados nele.
+			try (BufferedWriter bw = new BufferedWriter(new FileWriter(caminhoSubArquivo))){
+				
+				for(ItensVendidos item : list) {
+					bw.write(item.getName() + "," + String.format("%.2f", item.valorTotal()));
+					bw.newLine();
+				}
+				
+				System.out.println("Arquivo criado com SUCESSO!");
+				
 			}
-			
-			for(ItensVendidos e : itensVendidos) {
-				System.out.println(e.toString());
+			catch(IOException e){
+				System.out.println("Erro de escrita do arquivo: " + e.toString());
 			}
-			
+
+		} catch (IOException e) {
+			System.out.println("Erro de leitura do arquivo: " + e.getMessage());
 		}
-		catch(IOException e){
-			System.out.println("Error: " + e.getMessage());
-		}
-		finally {
-			if(input != null) input.close();
-		}
-		
-		sc.nextInt();
-		
+
+		sc.close();
+
 	}
 
 }
